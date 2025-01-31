@@ -77,7 +77,7 @@ def load_image_to_array(image_name: str) -> np.ndarray:
     
     return image_array
 
-def compress_image(image: np.ndarray, dim=384, grayscale=True):
+def compress_image(image: np.ndarray, dim=224, grayscale=True):
     """
     Compress and resize an image, optionally converting it to grayscale, and save it to the specified output path.
 
@@ -94,7 +94,7 @@ def compress_image(image: np.ndarray, dim=384, grayscale=True):
     # Convert the image to an array format (ensure compatibility with OpenCV operations)
     image_array = load_image_to_array(image)
     
-    # Resize the image to the specified dimensions (384x384 by default)
+    # Resize the image to the specified dimensions (224*224 by default)
     if grayscale:
         image_compress = cv2.resize(cv2.cvtColor(image_array, cv2.COLOR_BGR2GRAY),(dim, dim),interpolation=cv2.INTER_LANCZOS4)
     else:

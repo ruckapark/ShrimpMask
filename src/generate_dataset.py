@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
         #file save names
         input_ = image.compress_image(inputs[i])
-        output_ = image.compress_image(outputs[i])
+        output_ = image.compress_image(outputs[i], mask = True)
 
         #output file save names
         f_input = data_dir / f"input{i}.jpg"

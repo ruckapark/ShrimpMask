@@ -48,7 +48,7 @@ def sort_image_dataset(directory: Path, inputs_extension=".jpg", outputs_extensi
 
     return inputs, outputs
 
-def load_image_to_array(image_name: str) -> np.ndarray:
+def load_image_to_array(image_name: str, mask = False) -> np.ndarray:
     """
     Ouvre une image depuis le dossier `data/` et la stocke dans un array NumPy.
 
@@ -70,6 +70,11 @@ def load_image_to_array(image_name: str) -> np.ndarray:
     
     # Charge l'image avec OpenCV
     image_array = cv2.imread(str(image_path))  # Utilise str() pour convertir Path en string compatible
+
+    #white non black pixels if mask
+    if mask:
+        non_black_mask = np.any(image_array > 0, axis=-1)
+        image_array[non_black_mask] = [255, 255, 255]
     
     # Vérifie si l'image a été chargée correctement
     if image_array is None:
@@ -77,7 +82,7 @@ def load_image_to_array(image_name: str) -> np.ndarray:
     
     return image_array
 
-def compress_image(image: np.ndarray, dim=224, grayscale=True):
+def compress_image(image: np.ndarray, dim=224, grayscale=True, mask = False):
     """
     Compress and resize an image, optionally converting it to grayscale, and save it to the specified output path.
 
@@ -92,7 +97,14 @@ def compress_image(image: np.ndarray, dim=224, grayscale=True):
         np.ndarray: The processed image array.
     """
     # Convert the image to an array format (ensure compatibility with OpenCV operations)
-    image_array = load_image_to_array(image)
+    image_array = load_image_to_array(image, mask = mask)
+
+    # Dilate the image if specified
+    if mask:
+        # Define the kernel size for dilation (e.g., 3x3)
+        kernel_size = 10
+        kernel = np.ones((kernel_size, kernel_size), np.uint8)
+        image_array = cv2.dilate(image_array, kernel, iterations=1)
     
     # Resize the image to the specified dimensions (224*224 by default)
     if grayscale:
@@ -148,8 +160,8 @@ if __name__ == "__main__":
         print(f"L'image {mask_path.name} a été chargée avec succès. Dimensions : {mask_array.shape}")
 
         #resize to 224 and greyscale
-        image_compress = cv2.resize(cv2.cvtColor(image_array , cv2.COLOR_BGR2GRAY),(384,384), interpolation = cv2.INTER_LANCZOS4)
-        mask_compress = cv2.resize(cv2.cvtColor(mask_array , cv2.COLOR_BGR2GRAY),(384,384), interpolation = cv2.INTER_LANCZOS4)
+        image_compress = cv2.resize(cv2.cvtColor(image_array , cv2.COLOR_BGR2GRAY),(224,224), interpolation = cv2.INTER_LANCZOS4)
+        mask_compress = cv2.resize(cv2.cvtColor(mask_array , cv2.COLOR_BGR2GRAY),(224,224), interpolation = cv2.INTER_LANCZOS4)
         
         cv2.imshow('mask2',mask_compress) # sufficient quality
 
